@@ -69,6 +69,100 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-我居然忘了补码的原理！" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/04/20/我居然忘了补码的原理！/" class="article-date">
+  <time datetime="2019-04-20T10:53:10.643Z" itemprop="datePublished">2019-04-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>转自 <a href="https://blog.csdn.net/leonliu06/article/details/78685197" target="_blank" rel="noopener">https://blog.csdn.net/leonliu06/article/details/78685197</a></p>
+<h1 id="文首"><a href="#文首" class="headerlink" title="文首"></a>文首</h1><p>  我们都知道负数在计算机中是以补码（<a href="http://blog.csdn.net/leonliu06/article/details/78685248" rel="nofollow" target="_blank">忘了补码定义的戳这里</a>）表示的，那为什么呢？本文尝试了解补码的原理，而要想理解它，首先得理解算术中“<strong>模</strong>”的概念。所以首先看一下什么是模，然后通过一个小例子来理解补码。</p>
+
+
+
+<h2 id="1-模modulo"><a name="t1"></a>1 模（Modulo）</h2>
+
+
+
+<h4 id="11-什么是模数">1.1 什么是模数</h4>
+
+<blockquote><br>  <p>In mathematics, modular arithmetic is a system of arithmetic for integers, where numbers “wrap around” upon reaching a certain value—the modulus (plural moduli).</p><br></blockquote>
+
+
+
+<h5 id="111-理解">1.1.1 理解</h5>
+
+<p>  <font color="red"><strong>模</strong></font>是指一个计量系统的计数范围。如时钟等。计算机也是一个计算器，它也是有一个计量范围，即都存在一个“模”。 <br><br>  如时钟的计量范围是0~11，模 = 12。 <br><br>  32位计算机的计量范围是2^<sup>32</sup>，模 = 2^<sup>32</sup>。 <br><br>  <strong>“模”是计量器产生“溢出”的量</strong>，它的值在计量器上表示不出来，计量器上只能表示出模的余数，如12的余数有0,1,2,3,4,5,6,7,8,9,10,11。</p>
+
+
+
+<h4 id="12-补数">1.2 补数</h4>
+
+<p>  假设当前时针指向11点，而准确时间是8点，调整时间可有以下两种拨法： </p>
+
+<ul><br><li>一种是倒拨3小时，即：<code>11-3=8</code> </li><br><li>另一种是顺拨9小时：<code>11+9=12+8=8</code> </li><br></ul>
+
+<p>  在以模为12的系统中，<strong>加9和减3效果是一样的</strong>，因此凡是减3运算，都可以用加9来代替。对“模”12而言，9和3互为<font color="red"><strong>补数</strong></font>（二者相加等于模）。所以我们可以得出一个结论，即<strong>在有模的计量系统中，减一个数等于加上它的补数</strong>，从而实现<strong>将减法运算转化为加法运算</strong>的目的。</p>
+
+
+
+<h4 id="13-再谈模">1.3 再谈“模”</h4>
+
+<p>  从上面的化减法为加法，以及所谓的溢出等等可以看到，<font color="red"><strong>“模”可以说就是一个太极</strong></font>，<strong>阴阳转化，周而复始，无始无终，循环往复</strong>。</p>
+
+<h2 id="2-补码原理"><a name="t2"></a>2 补码原理</h2>
+
+<p>  <font color="red"><strong>计算机上的补码就是算术里的补数</strong></font>。 <br><br>  设我们有一个 <code>4</code> 位的计算机，则其计量范围即模是  <br><br> 2^<sup>4</sup> = 16，所以其能够表示的范围是<code>0~15</code>，现在以计算 <code>5 - 3</code>为例，我们知道在计算机中，<font color="red"><strong>加法器</strong></font>实现最简单，所以很多运算最终都要<font color="red"><strong>转为加法运算</strong></font>，因此<code>5-3</code>就要转化为加法：</p>
+
+
+
+<pre class="prettyprint" name="code"><code class="hljs cs has-numbering" onclick="mdcp.copyCode(event)"> <span class="hljs-preprocessor"># 按以上理论，减一个数等于加上它的补数，所以</span>
+ <span class="hljs-number">5</span> - <span class="hljs-number">3</span>
+ <span class="hljs-preprocessor"># 等价于 </span>
+ <span class="hljs-number">5</span> + (<span class="hljs-number">16</span> - <span class="hljs-number">3</span>)   <span class="hljs-comment">// 算术运算单元将减法转化为加法</span>
+ <span class="hljs-preprocessor"># 用二进制表示则为：</span>
+ <span class="hljs-number">0101</span> + (<span class="hljs-number">10000</span> - <span class="hljs-number">0011</span>)
+ <span class="hljs-preprocessor"># 等价于</span>
+ <span class="hljs-number">0101</span> + ((<span class="hljs-number">1</span> + <span class="hljs-number">1111</span>) - <span class="hljs-number">0011</span>)
+ <span class="hljs-preprocessor"># 等价于</span>
+ <span class="hljs-number">0101</span> + (<span class="hljs-number">1</span> + (<span class="hljs-number">1111</span> - <span class="hljs-number">0011</span>))
+ <span class="hljs-preprocessor"># 等价于</span>
+ <span class="hljs-number">0101</span> + (<span class="hljs-number">1</span> + <span class="hljs-number">1100</span>) <span class="hljs-comment">// 括号内是3（0011）的反码+1，正是补码的定义</span>
+ <span class="hljs-preprocessor"># 等价于</span>
+ <span class="hljs-number">0101</span> + <span class="hljs-number">1101</span>
+ <span class="hljs-preprocessor"># 所以从这里可以得到</span>
+ -<span class="hljs-number">3</span> = <span class="hljs-number">1101</span>
+ <span class="hljs-preprocessor"># 即 `-3` 在计算机中的二进制表示为 `1101`，正是“ -3 的正值 3（`0011`）的补码（`1101`）”。</span>
+ <span class="hljs-preprocessor"># 最后一步 0101 + 1101 等于</span>
+ <span class="hljs-number">10010</span><div class="hljs-button {2}" data-title="复制"></div></code><ul class="pre-numbering" style><li style="color: rgb(153, 153, 153);">1</li><li style="color: rgb(153, 153, 153);">2</li><li style="color: rgb(153, 153, 153);">3</li><li style="color: rgb(153, 153, 153);">4</li><li style="color: rgb(153, 153, 153);">5</li><li style="color: rgb(153, 153, 153);">6</li><li style="color: rgb(153, 153, 153);">7</li><li style="color: rgb(153, 153, 153);">8</li><li style="color: rgb(153, 153, 153);">9</li><li style="color: rgb(153, 153, 153);">10</li><li style="color: rgb(153, 153, 153);">11</li><li style="color: rgb(153, 153, 153);">12</li><li style="color: rgb(153, 153, 153);">13</li><li style="color: rgb(153, 153, 153);">14</li><li style="color: rgb(153, 153, 153);">15</li><li style="color: rgb(153, 153, 153);">16</li><li style="color: rgb(153, 153, 153);">17</li><li style="color: rgb(153, 153, 153);">18</li><li style="color: rgb(153, 153, 153);">19</li></ul></pre>
+
+<p>  因为我们的计算机是 <code>4</code> 位的，第一位“溢出”了，所以我们<strong>只保存了 <code>4</code> 位</strong>，即 <code>0010</code>，而当计算机去读取时这<strong>正是我们所期望的</strong> <code>2</code>！！<strong>叹为观止吧，天才般的设计</strong>！感恩<strong>伏羲</strong>、<strong>莱布尼兹</strong>和<strong>冯诺依曼</strong>！</p>
+
+
+
+<h2 id="文末"><a name="t3"></a>文末</h2>
+
+<p></p><p>  一阴一阳之谓道。万事万物，阴阳转化，周而复始，无始无终，循环往复。</p>            <p></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2019/04/20/我居然忘了补码的原理！/" data-id="cjupeflts0003ykthii5a4fe0" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-hexo-github博客的首页乱码解决方法" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2019/03/28/hexo-github博客的首页乱码解决方法/" class="article-date">
@@ -101,7 +195,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/28/hexo-github博客的首页乱码解决方法/" data-id="cjtr33b660000ikth76zghjxm" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/03/28/hexo-github博客的首页乱码解决方法/" data-id="cjupefltp0002ykth6k1vchjx" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
@@ -179,7 +273,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/28/第一块砖头/" data-id="cjtr316qd000254thihrqbqd9" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/03/28/第一块砖头/" data-id="cjupeflty0005ykth800hrlps" class="article-share-link">Share</a>
       
       
     </footer>
@@ -218,7 +312,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/27/editplus注册码/" data-id="cjtr316ps000054thdeo5gohu" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/03/27/editplus注册码/" data-id="cjupeflt60000ykthzeu1g9j4" class="article-share-link">Share</a>
       
       
     </footer>
@@ -263,7 +357,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/27/高效使用Markdown/" data-id="cjtr316qf000354thyrvn6c94" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/03/27/高效使用Markdown/" data-id="cjupeflu00006ykthy3nslrp1" class="article-share-link">Share</a>
       
       
     </footer>
@@ -308,7 +402,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2019/03/27/hello-world/" data-id="cjtr316q8000154thzgwut83f" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2019/03/27/hello-world/" data-id="cjupefltj0001ykthrkkjtekg" class="article-share-link">Share</a>
       
       
     </footer>
@@ -350,7 +444,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a></li></ul>
     </div>
   </div>
 
@@ -361,6 +455,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2019/04/20/我居然忘了补码的原理！/">(no title)</a>
+          </li>
         
           <li>
             <a href="/2019/03/28/hexo-github博客的首页乱码解决方法/">hexo-github博客的首页乱码解决方法</a>
@@ -376,10 +474,6 @@
         
           <li>
             <a href="/2019/03/27/高效使用Markdown/">高效使用markdown</a>
-          </li>
-        
-          <li>
-            <a href="/2019/03/27/hello-world/">Hello World</a>
           </li>
         
       </ul>
